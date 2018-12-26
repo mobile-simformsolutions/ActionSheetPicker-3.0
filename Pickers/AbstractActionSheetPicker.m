@@ -626,7 +626,7 @@ CG_INLINE BOOL isIPhone4() {
 - (CGSize)viewSize {
     if (IS_IPAD) {
         if (!self.popoverDisabled && [MyPopoverController canShowPopover])
-            return CGSizeMake(320, 320);
+            return CGSizeMake(414, 414);
         return [UIApplication sharedApplication].keyWindow.bounds.size;
     }
 
