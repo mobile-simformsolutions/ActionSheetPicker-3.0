@@ -684,7 +684,9 @@ CG_INLINE BOOL isIPhone4() {
     if (self.pickerBackgroundColor) {
         _actionSheet.bgView.backgroundColor = self.pickerBackgroundColor;
     }
-
+    if (@available(iOS 13, *)) {
+        self.pickerView.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
+    }
     [self presentActionSheet:_actionSheet];
 
     // Use beginAnimations for a smoother popup animation, otherwise the UIActionSheet pops into view
