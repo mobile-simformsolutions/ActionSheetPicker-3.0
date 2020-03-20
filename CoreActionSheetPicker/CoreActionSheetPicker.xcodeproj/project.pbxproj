@@ -146,10 +146,10 @@
 		1CCA90831AE0EFF300368F5E /* Pickers */ = {
 			isa = PBXGroup;
 			children = (
+				1CCA90621AE0EFC500368F5E /* AbstractActionSheetPicker.h */,
 				1CCA905F1AE0EFC500368F5E /* AbstractActionSheetPicker.m */,
 				1CCA90601AE0EFC500368F5E /* ActionSheetDistancePicker.h */,
 				1CCA90611AE0EFC500368F5E /* ActionSheetDistancePicker.m */,
-				1CCA90621AE0EFC500368F5E /* AbstractActionSheetPicker.h */,
 				1CCA90631AE0EFC500368F5E /* SWActionSheet.m */,
 				1CCA90641AE0EFC500368F5E /* ActionSheetDatePicker.h */,
 				1CCA90651AE0EFC500368F5E /* ActionSheetDatePicker.m */,
@@ -254,6 +254,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 1CCA90391AE0EFB000368F5E;

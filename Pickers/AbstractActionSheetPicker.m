@@ -108,7 +108,7 @@ CG_INLINE BOOL isIPhone4() {
 
 - (void)presentPopover:(UIPopoverController *)popover;
 
-- (void)dismissPicker;
+- (void)dismissPickerWithDoneAction;
 
 - (BOOL)isViewPortrait;
 
@@ -306,15 +306,15 @@ CG_INLINE BOOL isIPhone4() {
 
 - (IBAction)actionPickerDone:(id)sender {
     [self notifyTarget:self.target didSucceedWithAction:self.successAction origin:[self storedOrigin]];
-    [self dismissPicker];
+    [self dismissPickerWithDoneAction];
 }
 
 - (IBAction)actionPickerCancel:(id)sender {
     [self notifyTarget:self.target didCancelWithAction:self.cancelAction origin:[self storedOrigin]];
-    [self dismissPicker];
+    [self dismissPickerWithDoneAction];
 }
 
-- (void)dismissPicker {
+- (void)dismissPickerWithDoneAction {
 #if __IPHONE_4_1 <= __IPHONE_OS_VERSION_MAX_ALLOWED
     if (self.actionSheet)
 #else
@@ -405,7 +405,7 @@ CG_INLINE BOOL isIPhone4() {
 
         case ActionTypeBlock: {
             ActionBlock actionBlock = buttonDetails[kButtonValue];
-            [self dismissPicker];
+            [self dismissPickerWithDoneAction];
             if (actionBlock)
                 actionBlock();
             break;
@@ -414,7 +414,7 @@ CG_INLINE BOOL isIPhone4() {
         case ActionTypeSelector: {
             SEL selector = [buttonDetails[kButtonValue] pointerValue];
             id target = buttonDetails[kActionTarget];
-            [self dismissPicker];
+            [self dismissPickerWithDoneAction];
             if (target && [target respondsToSelector:selector]) {
                 SuppressPerformSelectorLeakWarning (
                         [target performSelector:selector];
@@ -695,7 +695,7 @@ CG_INLINE BOOL isIPhone4() {
 
 - (void)didRotate:(NSNotification *)notification {
     if (OrientationMaskSupportsOrientation(self.supportedInterfaceOrientations, DEVICE_ORIENTATION))
-        [self dismissPicker];
+        [self dismissPickerWithDoneAction];
 }
 
 - (void)presentActionSheet:(SWActionSheet *)actionSheet {
