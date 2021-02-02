@@ -12,9 +12,10 @@ static const float duration = .25f;
 static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEaseIn;
 
 
-@interface SWActionSheetVC : UIViewController
+@interface SWActionSheetVC : UIViewController <UIGestureRecognizerDelegate>
 
 @property (nonatomic, retain) SWActionSheet *actionSheet;
+@property (nonatomic, retain) UITapGestureRecognizer *dismissTap;
 
 @end
 
@@ -87,13 +88,29 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
     }
     else
     {
-        return SWActionSheetWindow = ({
-            UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-            window.windowLevel        = self.windowLevel;
-            window.backgroundColor    = [UIColor clearColor];
-            window.rootViewController = [SWActionSheetVC new];
-            window;
-        });
+        UIWindow *window = nil;
+
+// Handle UIWindow for iOS 13 changes
+#if defined(__IPHONE_13_0)
+        if (@available(iOS 13.0, *)) {
+            UIScene *scene = [UIApplication sharedApplication].connectedScenes.allObjects.firstObject;
+            if (scene && [scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+                window = [[UIWindow alloc] initWithWindowScene:windowScene];
+            }
+        }
+#endif
+
+        if (window == nil) {
+            window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        }
+
+        window.windowLevel        = self.windowLevel;
+        window.backgroundColor    = [UIColor clearColor];
+        window.rootViewController = [SWActionSheetVC new];
+
+        SWActionSheetWindow = window;
+        return SWActionSheetWindow;
     }
 }
 
@@ -110,12 +127,24 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
         _windowLevel = windowLevel;
         self.backgroundColor = [UIColor colorWithWhite:0.f alpha:0.0f];
         _bgView = [UIView new];
+
+// Support iOS 13 Dark Mode - support dynamic background color in iOS 13
+#if defined(__IPHONE_13_0)
+        if (@available(iOS 13.0, *)) {
+            _bgView.backgroundColor = [UIColor systemBackgroundColor];
+        }
+        else {
+            _bgView.backgroundColor = [UIColor colorWithRed:247.f/255.f green:247.f/255.f blue:247.f/255.f alpha:1.0f];
+        }
+#else
         _bgView.backgroundColor = [UIColor colorWithRed:247.f/255.f green:247.f/255.f blue:247.f/255.f alpha:1.0f];
+#endif
         [self addSubview:_bgView];
         [self addSubview:view];
     }
     return self;
 }
+
 
 - (void)configureFrameForBounds:(CGRect)bounds
 {
@@ -160,6 +189,11 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
     self.presented = YES;
 }
 
+- (void)dismissActionSheet
+{
+    [self dismissWithClickedButtonIndex:0 animated:YES];
+}
+
 @end
 
 
@@ -201,23 +235,44 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
         _actionSheet.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         [self.view addSubview:_actionSheet];
         [_actionSheet showInContainerViewAnimated:animated];
+
+        // Add Tap Gesture on Background to dismiss ActionSheet
+        [_actionSheet removeGestureRecognizer:self.dismissTap];
+        self.dismissTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissActionSheet)];
+        self.dismissTap.delegate = self;
+        [_actionSheet addGestureRecognizer:self.dismissTap];
     }
 }
 
-- (BOOL)prefersStatusBarHidden {
-	return [UIApplication sharedApplication].statusBarHidden;
+- (void)dismissActionSheet
+{
+    [_actionSheet dismissWithClickedButtonIndex:0 animated:YES];
 }
+
+- (BOOL)prefersStatusBarHidden
+{
+    return [UIApplication sharedApplication].statusBarHidden;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    CGPoint location = [touch locationInView:_actionSheet];
+    return !CGRectContainsPoint(_actionSheet.bgView.frame, location);
+}
+
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+// iOS6 support
+// ---
+- (BOOL)shouldAutorotate
+{
+        return YES;
+}
+#else
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return NO;
 }
-
-// iOS6 support
-// ---
-- (BOOL)shouldAutorotate
-{
-    return YES;
-}
-
+#endif
 @end
