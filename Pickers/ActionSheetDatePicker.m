@@ -202,7 +202,7 @@
 
     //need to keep a reference to the picker so we can clear the DataSource / Delegate when dismissing (not used in this picker, but just in case somebody uses this as a template for another picker)
     self.pickerView = datePicker;
-
+    self.pickerView.frame = CGRectMake(0, 40, self.viewSize.width, self.viewSize.height- 198);
     return datePicker;
 }
 
