@@ -25,13 +25,14 @@
 //SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-
 #import "ActionSheetDatePicker.h"
 #import <objc/message.h>
 
 @interface ActionSheetDatePicker()
+
 @property (nonatomic, assign) UIDatePickerMode datePickerMode;
 @property (nonatomic, strong) NSDate *selectedDate;
+
 @end
 
 @implementation ActionSheetDatePicker
@@ -175,7 +176,15 @@
     datePicker.calendar = self.calendar;
     datePicker.timeZone = self.timeZone;
     datePicker.locale = self.locale;
-
+    if (@available(iOS 13.4, *)) {
+        datePicker.preferredDatePickerStyle = self.datePickerStyle;
+    } else {
+        UIColor *textColor = [self.pickerTextAttributes valueForKey:NSForegroundColorAttributeName];
+        if (textColor) {
+            [datePicker setValue:textColor forKey:@"textColor"]; // use ObjC runtime to set value for property that is not exposed publicly
+        }
+    }
+    
     // if datepicker is set with a date in countDownMode then
     // 1h is added to the initial countdown
     if (self.datePickerMode == UIDatePickerModeCountDownTimer) {
@@ -278,6 +287,31 @@
             NSAssert(false, @"Unknown action type");
             break;
     }
+}
+
+- (CGFloat)getDatePickerHeight
+{
+    CGFloat height = 216.0;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000 // Xcode 12 and iOS 14, or greater
+    if (@available(iOS 14.0, *)) {
+        if (_datePickerStyle == UIDatePickerStyleCompact) {
+            height = 90.0;
+        } else if (_datePickerStyle == UIDatePickerStyleInline) {
+            switch (_datePickerMode) {
+                case UIDatePickerModeDate:
+                    height = 350.0;
+                    break;
+                case UIDatePickerModeTime:
+                    height = 90.0;
+                    break;
+                default: // UIDatePickerModeDateAndTime
+                    height = 400.0;
+                    break;
+            }
+        }
+    }
+#endif
+    return height;
 }
 
 @end
